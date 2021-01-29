@@ -86,6 +86,8 @@ public class PlayerActivity extends AppCompatActivity {
 
     MediaItem mediaItem = MediaItem.fromUri(getString(R.string.media_url_mp4));
     player.setMediaItem(mediaItem);
+    MediaItem secondMediaItem = MediaItem.fromUri(getString(R.string.media_url_mp3));
+    player.addMediaItem(secondMediaItem);
 
     player.setPlayWhenReady(playWhenReady);
     player.seekTo(currentWindow, playbackPosition);

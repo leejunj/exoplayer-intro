@@ -19,9 +19,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.ui.PlayerView;
@@ -38,11 +41,15 @@ public class PlayerActivity extends AppCompatActivity {
 
   private SimpleExoPlayer player;
 
+  private PlaybackStateListener playbackStateListener;
+  private static final String TAG = PlayerActivity.class.getName();
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_player);
 
+    playbackStateListener = new PlaybackStateListener();
     playerView = findViewById(R.id.video_view);
 
   }
@@ -106,6 +113,7 @@ public class PlayerActivity extends AppCompatActivity {
 
     player.setPlayWhenReady(playWhenReady);
     player.seekTo(currentWindow, playbackPosition);
+    player.addListener(playbackStateListener);
     player.prepare();
   }
 
@@ -130,8 +138,35 @@ public class PlayerActivity extends AppCompatActivity {
       playWhenReady = player.getPlayWhenReady();
       playbackPosition = player.getCurrentPosition();
       currentWindow = player.getCurrentWindowIndex();
+      player.removeListener(playbackStateListener);
       player.release();
       player = null;
+    }
+  }
+
+  private class PlaybackStateListener implements Player.EventListener {
+
+    @Override
+    public void onPlaybackStateChanged(int playbackState) {
+      String stateString;
+      switch (playbackState) {
+        case ExoPlayer.STATE_IDLE:
+          stateString = "ExoPlayer.STATE_IDLE      -";
+          break;
+        case ExoPlayer.STATE_BUFFERING:
+          stateString = "ExoPlayer.STATE_BUFFERING -";
+          break;
+        case ExoPlayer.STATE_READY:
+          stateString = "ExoPlayer.STATE_READY     -";
+          break;
+        case ExoPlayer.STATE_ENDED:
+          stateString = "ExoPlayer.STATE_ENDED     -";
+          break;
+        default:
+          stateString = "UNKNOWN_STATE             -";
+          break;
+      }
+      Log.d(TAG, "changed state to " + stateString);
     }
   }
 }
